@@ -6,14 +6,16 @@ import numpy as np
 import os
 from os.path import join, dirname
 from dotenv import load_dotenv
-from requests import get
+from prettytable import PrettyTable
 
+from get_ip import get_external_ip
 # Create .env file path.
 dotenv_path = join(dirname(__file__), '.env')
 # Load file from the path.
 load_dotenv(dotenv_path)
 hosts_filename = os.getenv("HOSTS_FILENAME")
 ports = os.getenv("PORTS").strip('][').split(', ')
+ports = [port.strip("'") for port in ports]
 
 class HostEnv(Enum):
     PROD = "prod"
@@ -21,13 +23,6 @@ class HostEnv(Enum):
     DEV = "dev"
     OTHER = "other"
     ALL = "all"
-
-def get_external_ip():
-    ip = get('https://api.ipify.org').text
-    return ip
-    # print("Host Name is:" + h_name)
-    # print("Computer IP Address is:" + IP_addres)
-
 def check_empty_list(list_to_check):
     for l in list_to_check:
         if l:
@@ -50,27 +45,34 @@ def check_connections(env):
         columns = df.columns.values.tolist()
 
     for env in columns:
+        print(f"\nPorts: {ports}\nChecking Connections for:\n@@@@@@\n{env.upper()}\n@@@@@@@\n")
         data = []
-        print(f"\n@@@@@@\n{env.upper()}\n@@@@@@@\n")
         for host in df[env]:
             host_info = []
             if host != "None":
                 host_info.append(host)
                 for port in ports:
                     try:
-                        print(f"Host: {host}, Port: {port}")
+                        #print(f"Host: {host}, Port: {port}")
                         with Telnet(host=host, port=port, timeout=1) as tn:
-                            print("++++\nConnection Established\n++++++\n")
+                            #print("++++\nConnection Established\n++++++\n")
                             host_info.append("GOOD")
                             tn.close()
                     except Exception as e:
                         host_info.append("X")
-                        print("------\nTimed out\n--\n")
+                        #print("------\nTimed out\n--\n")
             data.append(host_info)
         if check_empty_list(data):
-            new_df = pd.DataFrame(data, columns=["Hostname", *ports])
+            column_headers = ["Hostname", *ports]
+            new_df = pd.DataFrame(data, columns=column_headers)
             ip = get_external_ip()
             new_df.to_csv(f"{ip}_{env}.csv", index=False)
+            # Creating a pretty table in terminal
+            table = PrettyTable(column_headers)
+            for row in new_df.values.tolist():
+                if None not in row:
+                    table.add_row(row)
+            print(table)
 
 if __name__ == "__main__":
     my_parser = argparse.ArgumentParser(

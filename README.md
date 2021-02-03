@@ -11,10 +11,17 @@ This is a small script i wrote in python which performs that same telnet command
 
 ## Host & Port setup
 In the file `.env` you can edit the name of the csv file which contains your hostnames/ips. Change the name of the file saved in this directory to the variable `HOSTS_FILENAME`.
-Add as many ports as your like to the list `PORTS` as integers.
+
+Two ways to edit port values:
+1. Edit them in the list `PORTS` as integers directly in the .env file
 ```
 HOSTS_FILENAME='hostnames.csv'
 PORTS=[22, 8000, 9000]
+```
+2. Use the commands and follow the on screen instructions:
+```
+python3 add_to_list.py
+python3 remove_from_list.py
 ```
 
 For the hostnames csv, you can create a csv on your own with some headers but for this application, since it was quick, the script works with column headers "Prod", "Dev", "Qa", "Other" for testing out the different environments i am checking. You can create a similar file by doing first setting the name of the host file in `.env` and then running `python3 create_hostname_file.py`
@@ -30,7 +37,14 @@ There are 5 flags you can run:
 
 (Not including a flag will default to all)
 
+You can add more hostnames/ips to the file by using:
+```
+python3 add_to_list.py
+```
+
 Once that is set, run `python3 main.py <flag>` and it will display the connections on each port as well as output this information to a csv names <your_public_ip>_<Environment>.csv eg. 192.168.2.2_Prod.csv
+
+It also uses the PrettyTable library to output the results in a nice table format in the terminal/shell.
 
 Enjoy!
 
