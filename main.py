@@ -45,7 +45,7 @@ def check_connections(env):
         columns = df.columns.values.tolist()
 
     for env in columns:
-        print(f"\nPorts: {ports}\nChecking Connections for:\n@@@@@@\n{env.upper()}\n@@@@@@@\n")
+        print(f"\nPorts to check: {str(ports).strip('][')}\nChecking Connection for environment:\n@@@@@@\n{env.upper()}\n@@@@@@@\n")
         data = []
         for host in df[env]:
             host_info = []
@@ -83,6 +83,7 @@ if __name__ == "__main__":
     my_parser.add_argument("-other", action='store_true')
     my_parser.add_argument("-all", action='store_true')
     args = my_parser.parse_args()
+    print(f"Your current public ip:\n{get_external_ip()}")
     if vars(args)[HostEnv.PROD.value]:
         check_connections(HostEnv.PROD)
     elif vars(args)[HostEnv.DEV.value]:
